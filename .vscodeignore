@@ -1,0 +1,12 @@
+src/**
+test/**
+scripts/**
+.vscode/**
+.vscode-test/**
+node_modules/**
+tsconfig.json
+package-lock.json
+dist/*.map
+dist/execution.js
+dist/transform.js
+*.vsix

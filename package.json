@@ -1,0 +1,144 @@
+{
+  "name": "instant-selection-js-runner",
+  "displayName": "JS Runner",
+  "description": "Run selected JavaScript instantly in a dedicated JS Runner panel.",
+  "version": "0.5.1",
+  "publisher": "local-js-tools",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Selected JavaScript runs with Node.js permissions."
+    },
+    "virtualWorkspaces": false
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "jsRunner.runSelection",
+        "title": "Run with JS Runner",
+        "icon": "$(play)",
+        "enablement": "isWorkspaceTrusted"
+      },
+      {
+        "command": "jsRunner.stop",
+        "title": "JS Runner: Stop Execution",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "jsRunner.showLastResult",
+        "title": "JS Runner: Show Panel"
+      },
+      {
+        "command": "jsRunner.copyResult",
+        "title": "JS Runner: Copy Result",
+        "icon": "$(copy)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "jsRunner.runSelection",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
+        "when": "editorTextFocus && editorHasSelection && isWorkspaceTrusted && editorLangId =~ /^(javascript|javascriptreact|typescript|typescriptreact|markdown|html|vue|svelte)$/"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "js-runner",
+          "title": "JS Runner",
+          "icon": "media/runner.svg"
+        }
+      ]
+    },
+    "views": {
+      "js-runner": [
+        {
+          "id": "jsRunner.results",
+          "name": "JS Runner",
+          "type": "webview"
+        }
+      ]
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "jsRunner.runSelection",
+          "when": "editorHasSelection && isWorkspaceTrusted && editorLangId =~ /^(javascript|javascriptreact|typescript|typescriptreact|markdown|html|vue|svelte)$/",
+          "group": "navigation@100"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "jsRunner.runSelection",
+          "when": "view == jsRunner.results",
+          "group": "navigation@1"
+        },
+        {
+          "command": "jsRunner.stop",
+          "when": "view == jsRunner.results && jsRunner.running",
+          "group": "navigation@2"
+        },
+        {
+          "command": "jsRunner.copyResult",
+          "when": "view == jsRunner.results",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "JS Runner",
+      "properties": {
+        "jsRunner.nodePath": {
+          "type": "string",
+          "default": "node",
+          "description": "Node.js executable name or absolute path used to run selections (Node.js 20.19 or newer). This is independent of the Node.js version inside VS Code."
+        },
+        "jsRunner.timeoutMs": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 100,
+          "maximum": 300000,
+          "description": "Maximum execution time in milliseconds."
+        },
+        "jsRunner.inspectionDepth": {
+          "type": "number",
+          "default": 5,
+          "minimum": 0,
+          "maximum": 20,
+          "description": "Maximum nested object depth shown in results."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc --noEmit",
+    "test": "npm run build && node --test test/*.test.cjs",
+    "test:integration": "node test/integration.cjs",
+    "vscode:prepublish": "npm run check && npm run build",
+    "package": "vsce package --no-dependencies --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@types/eslint-scope": "^8.4.0",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "acorn": "^8.15.0",
+    "esbuild": "^0.25.0",
+    "eslint-scope": "^9.1.2",
+    "typescript": "^5.8.0"
+  }
+}

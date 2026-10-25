@@ -1,0 +1,52 @@
+const assert = require('node:assert/strict');
+const vscode = require('vscode');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+exports.run = async () => {
+  const extension = vscode.extensions.getExtension('local-js-tools.instant-selection-js-runner');
+  assert.ok(extension);
+  await extension.activate();
+  const commands = await vscode.commands.getCommands(true);
+  for (const name of ['runSelection', 'stop', 'showLastResult', 'copyResult']) assert.ok(commands.includes('jsRunner.' + name));
+  assert.equal(extension.packageJSON.contributes.keybindings[0].key, 'ctrl+alt+j');
+  assert.equal(extension.packageJSON.contributes.menus['editor/context'][0].command, 'jsRunner.runSelection');
+  const document = await vscode.workspace.openTextDocument({ language: 'javascript', content: 'const user = {name: "Nihil", age: 32};' });
+  const editor = await vscode.window.showTextDocument(document);
+  editor.selection = new vscode.Selection(document.positionAt(0), document.positionAt(document.getText().length));
+  await vscode.commands.executeCommand('jsRunner.runSelection');
+  await vscode.commands.executeCommand('jsRunner.copyResult');
+  assert.match(await vscode.env.clipboard.readText(), /name: 'Nihil'/);
+  assert.equal(extension.packageJSON.contributes.viewsContainers.panel[0].title, 'JS Runner');
+  assert.equal(extension.packageJSON.contributes.commands[0].title, 'Run with JS Runner');
+  await vscode.commands.executeCommand('jsRunner.showLastResult');
+  await vscode.commands.executeCommand('jsRunner.runSelection');
+  await vscode.commands.executeCommand('jsRunner.copyResult');
+  assert.match(await vscode.env.clipboard.readText(), /name: 'Nihil'/);
+  editor.selection = new vscode.Selection(0, 0, 0, 0);
+  await vscode.commands.executeCommand('jsRunner.runSelection');
+  await vscode.commands.executeCommand('jsRunner.copyResult');
+  assert.match(await vscode.env.clipboard.readText(), /Select JavaScript/);
+  const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'js-runner-editor-'));
+  try {
+    fs.writeFileSync(path.join(folder, 'util.js'), 'console.log("UNSELECTED"); export const numberz = [1,2,3,4,5,6]; export default [];');
+    const filename = path.join(folder, 'methods.js');
+    fs.writeFileSync(filename, '// imports will be added as unsaved editor changes\n');
+    const source = await vscode.workspace.openTextDocument(filename);
+    const sourceEditor = await vscode.window.showTextDocument(source);
+    await sourceEditor.edit(edit => edit.insert(new vscode.Position(1, 0), 'import hobbies, { numberz } from "./util.js";\nthrow Error("unselected");\nconst evens = numberz.filter(n => n % 2 === 0);\nconsole.log(evens);'));
+    sourceEditor.selection = new vscode.Selection(3, 0, 4, source.lineAt(4).text.length);
+    await vscode.commands.executeCommand('jsRunner.runSelection');
+    await vscode.commands.executeCommand('jsRunner.copyResult');
+    assert.equal(await vscode.env.clipboard.readText(), '[ 2, 4, 6 ]\n');
+    // Same-file declarations come from the unsaved buffer, not the file on disk.
+    const end = source.lineAt(source.lineCount - 1).range.end;
+    await sourceEditor.edit(edit => edit.insert(end, '\nconst factor = 3;\nfactor * 2'));
+    const last = source.lineCount - 1;
+    sourceEditor.selection = new vscode.Selection(last, 0, last, source.lineAt(last).text.length);
+    await vscode.commands.executeCommand('jsRunner.runSelection');
+    await vscode.commands.executeCommand('jsRunner.copyResult');
+    assert.match(await vscode.env.clipboard.readText(), /^Result:\n6\n$/m);
+  } finally { fs.rmSync(folder, { recursive: true }); }
+  console.log('Extension host integration: dedicated panel, selected code, Play command with panel focused, copy, empty selection, and same-file declarations passed.');
+};
