@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 480" width="860" height="480">
+  <defs>
+    <filter id="winShadow" x="-5%" y="-5%" width="110%" height="112%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <clipPath id="windowClip">
+      <rect x="10" y="10" width="840" height="460" rx="10"/>
+    </clipPath>
+  </defs>
+
+  <!-- Window container -->
+  <g filter="url(#winShadow)">
+    <rect x="10" y="10" width="840" height="460" rx="10" fill="#181824" stroke="#313244" stroke-width="1"/>
+  </g>
+
+  <g clip-path="url(#windowClip)">
+    <!-- Titlebar -->
+    <rect x="10" y="10" width="840" height="34" fill="#11111B"/>
+    <circle cx="28" cy="27" r="5.5" fill="#FF5F56"/>
+    <circle cx="45" cy="27" r="5.5" fill="#FFBD2E"/>
+    <circle cx="62" cy="27" r="5.5" fill="#27C93F"/>
+    <text x="430" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif" font-size="12" fill="#A6ADC8" text-anchor="middle">demo.js — JS Runner</text>
+
+    <!-- Editor Tab Bar -->
+    <rect x="10" y="44" width="840" height="32" fill="#181825"/>
+    <rect x="10" y="44" width="130" height="32" fill="#1E1E2E"/>
+    <rect x="10" y="44" width="130" height="2" fill="#F7DF1E"/>
+    <text x="32" y="65" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif" font-size="12" fill="#F7DF1E" font-weight="bold">JS</text>
+    <text x="54" y="65" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif" font-size="12" fill="#CDD6F4">demo.js</text>
+
+    <text x="160" y="65" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif" font-size="12" fill="#A6ADC8">util.js</text>
+
+    <!-- Editor Area -->
+    <rect x="10" y="76" width="840" height="194" fill="#1E1E2E"/>
+
+    <!-- Selection Highlight Background -->
+    <rect x="52" y="86" width="780" height="136" fill="#264F78" fill-opacity="0.45" rx="3"/>
+
+    <!-- Line Numbers & Code -->
+    <g font-family="'Consolas', 'Fira Code', 'Cascadia Code', monospace" font-size="13" line-height="22">
+      <!-- Line Numbers -->
+      <text x="32" y="102" fill="#6C7086" text-anchor="end">1</text>
+      <text x="32" y="124" fill="#6C7086" text-anchor="end">2</text>
+      <text x="32" y="146" fill="#6C7086" text-anchor="end">3</text>
+      <text x="32" y="168" fill="#6C7086" text-anchor="end">4</text>
+      <text x="32" y="190" fill="#6C7086" text-anchor="end">5</text>
+      <text x="32" y="212" fill="#6C7086" text-anchor="end">6</text>
+      <text x="32" y="234" fill="#45475A" text-anchor="end">7</text>
+      <text x="32" y="256" fill="#45475A" text-anchor="end">8</text>
+
+      <!-- Code Line 1 -->
+      <text x="56" y="102">
+        <tspan fill="#CBA6F7">const</tspan> <tspan fill="#89B4FA">user</tspan> <tspan fill="#89DCEB">=</tspan> <tspan fill="#CDD6F4">{</tspan>
+      </text>
+
+      <!-- Code Line 2 -->
+      <text x="56" y="124">
+        <tspan fill="#CDD6F4">  name:</tspan> <tspan fill="#A6E3A1">'Nihil'</tspan><tspan fill="#CDD6F4">,</tspan>
+      </text>
+
+      <!-- Code Line 3 -->
+      <text x="56" y="146">
+        <tspan fill="#CDD6F4">  age:</tspan> <tspan fill="#FAB387">32</tspan><tspan fill="#CDD6F4">,</tspan>
+      </text>
+
+      <!-- Code Line 4 -->
+      <text x="56" y="168">
+        <tspan fill="#CDD6F4">  greet() {</tspan> <tspan fill="#CBA6F7">return</tspan> <tspan fill="#A6E3A1">`Hello ${</tspan><tspan fill="#CBA6F7">this</tspan><tspan fill="#CDD6F4">.name</tspan><tspan fill="#A6E3A1">}`</tspan><tspan fill="#CDD6F4">; }</tspan>
+      </text>
+
+      <!-- Code Line 5 -->
+      <text x="56" y="190">
+        <tspan fill="#CDD6F4">};</tspan>
+      </text>
+
+      <!-- Code Line 6 -->
+      <text x="56" y="212">
+        <tspan fill="#89B4FA">user</tspan><tspan fill="#CDD6F4">.</tspan><tspan fill="#89DCEB">greet</tspan><tspan fill="#CDD6F4">();</tspan>
+      </text>
+
+      <!-- Code Line 7 (unselected comment) -->
+      <text x="56" y="234" fill="#585B70">// Press Ctrl+Alt+J to run selected JavaScript instantly</text>
+    </g>
+
+    <!-- Selection indicator badge -->
+    <rect x="710" y="88" width="125" height="22" rx="4" fill="#313244"/>
+    <text x="772" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" fill="#F7DF1E" text-anchor="middle">Ctrl+Alt+J pressed</text>
+
+    <!-- Bottom Panel Divider -->
+    <rect x="10" y="270" width="840" height="1" fill="#313244"/>
+
+    <!-- Bottom Panel Header / Tabs -->
+    <rect x="10" y="271" width="840" height="34" fill="#181825"/>
+
+    <text x="32" y="293" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600" fill="#6C7086">PROBLEMS</text>
+    <text x="110" y="293" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600" fill="#6C7086">OUTPUT</text>
+    <text x="175" y="293" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="600" fill="#6C7086">TERMINAL</text>
+
+    <!-- Active Tab: JS RUNNER -->
+    <text x="260" y="293" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="bold" fill="#CDD6F4">JS RUNNER</text>
+    <rect x="256" y="303" width="70" height="2" fill="#007ACC"/>
+
+    <!-- Panel Actions on the right -->
+    <g transform="translate(730, 278)">
+      <!-- Run / Play icon -->
+      <rect x="0" y="2" width="22" height="20" rx="3" fill="#313244"/>
+      <polygon points="7,7 16,12 7,17" fill="#A6E3A1"/>
+      <!-- Stop icon -->
+      <rect x="28" y="2" width="22" height="20" rx="3" fill="#313244"/>
+      <rect x="35" y="7" width="8" height="8" fill="#F38BA8"/>
+      <!-- Copy icon -->
+      <rect x="56" y="2" width="22" height="20" rx="3" fill="#313244"/>
+      <path d="M62 7 h7 v9 h-7 z" fill="none" stroke="#CDD6F4" stroke-width="1.2"/>
+      <path d="M65 5 h7 v9" fill="none" stroke="#89B4FA" stroke-width="1.2"/>
+    </g>
+
+    <!-- Bottom Panel Content Body -->
+    <rect x="10" y="305" width="840" height="165" fill="#181824"/>
+
+    <!-- Status Subheader Bar -->
+    <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12">
+      <!-- Status pill -->
+      <circle cx="32" cy="328" r="4.5" fill="#A6E3A1"/>
+      <text x="44" y="332" font-weight="bold" fill="#A6E3A1">Success</text>
+      <!-- Source file and line count -->
+      <text x="108" y="332" fill="#6C7086">•</text>
+      <text x="122" y="332" fill="#89B4FA">demo.js:1–6</text>
+      <text x="210" y="332" fill="#6C7086">(4 ms)</text>
+    </g>
+
+    <!-- Evaluation Output Display -->
+    <g font-family="'Consolas', 'Fira Code', 'Cascadia Code', monospace" font-size="13">
+      <text x="32" y="365" fill="#A6E3A1">'Hello Nihil'</text>
+      <text x="32" y="395" fill="#585B70">// Ready for next execution. Use Copy Result button to copy to clipboard.</text>
+    </g>
+  </g>
+</svg>
