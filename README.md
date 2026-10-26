@@ -13,10 +13,10 @@ With **Pardus** as its face, JS Runner is built around a focused workflow: selec
 [Quick start](#quick-start) · [Examples](#try-it-with-real-code) · [Settings](#settings) · [Troubleshooting](#troubleshooting) · [Support](https://github.com/projectGloria/jsRunner/issues)
 
 <p align="center">
-  <img src="media/demo.gif" alt="JS Runner demo: select a function call, run it with automatic context, then execute top-level await code with live console output and a final result" width="960" />
+  <img src="media/demo.gif" alt="JS Runner in VS Code: select console.log to display Hello, Nihil, then select the user declaration to inspect its object in the results panel" width="960" />
 </p>
 
-*Recorded in VS Code: automatic context loading, top-level await, live console output, and results in the JS Runner panel. The demo loops every 15 seconds.*
+*Recorded in the author's VS Code editor: run a selected console statement with automatic context loading, then inspect an object declaration.*
 
 ## Why JS Runner?
 
