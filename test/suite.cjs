@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 exports.run = async () => {
-  const extension = vscode.extensions.getExtension('local-js-tools.instant-selection-js-runner');
+  const extension = vscode.extensions.getExtension('Nihilnia.instant-selection-js-runner');
   assert.ok(extension);
   await extension.activate();
   const commands = await vscode.commands.getCommands(true);

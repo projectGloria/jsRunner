@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="media/icon.svg" alt="JS Runner Logo" width="100" height="100" />
+<img src="media/icon.png" alt="JS Runner Pardus Logo" width="100" height="100" />
 
 # JS Runner
 
@@ -31,7 +31,7 @@
 </p>
 
 <p align="center">
-  <img src="media/preview.svg" alt="JS Runner Interface Preview" width="860" />
+  <img src="media/preview.png" alt="JS Runner Interface Preview" width="860" />
 </p>
 
 </div>
@@ -94,7 +94,7 @@ JS Runner evaluates your code in a dedicated bottom tab nestled alongside **Term
 The dedicated **JS Runner** bottom panel streams `console.log()` output followed by the return value of your final expression.
 
 <p align="center">
-  <img src="media/preview.svg" alt="JS Runner Panel Interface" width="820" />
+  <img src="media/preview.png" alt="JS Runner Panel Interface" width="820" />
 </p>
 
 - **Status Bar**: Green `Success`, red `Error` / `Timeout`, or grey `Cancelled`.
@@ -109,7 +109,7 @@ The dedicated **JS Runner** bottom panel streams `console.log()` output followed
 When you trigger a run, JS Runner extracts only the required dependencies before handing execution to Node.js:
 
 <p align="center">
-  <img src="media/workflow.svg" alt="JS Runner Architecture Workflow" width="840" />
+  <img src="media/workflow.png" alt="JS Runner Architecture Workflow" width="840" />
 </p>
 
 ---
@@ -305,5 +305,5 @@ Press **`F5`** in VS Code to launch the Extension Development Host window with t
 Distributed under the **[MIT License](LICENSE)**.
 
 ```
-MIT License © local-js-tools / projectGloria
+MIT License © Nihilnia / projectGloria
 ```

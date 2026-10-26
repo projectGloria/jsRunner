@@ -1,6 +1,8 @@
+.gitignore
 src/**
 test/**
 scripts/**
+scratch/**
 .vscode/**
 .vscode-test/**
 node_modules/**
