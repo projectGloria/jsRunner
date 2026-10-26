@@ -1,6 +1,6 @@
 {
   "name": "instant-selection-js-runner",
-  "displayName": "JS Runner",
+  "displayName": "Js runner — Pardus",
   "description": "Run JavaScript selections in VS Code with automatic context loading, top-level await, live console output, and readable results in a dedicated panel.",
   "version": "0.5.1",
   "publisher": "Nihilnia",

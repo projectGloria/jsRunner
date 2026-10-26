@@ -2,11 +2,11 @@
   <img src="media/icon.png" alt="Pardus, the face of JS Runner" width="144" height="144" />
 </p>
 
-# JS Runner
+# Js runner — Pardus
 
 **Select JavaScript. Run it. See the result without leaving your editor.**
 
-JS Runner gives you a JavaScript playground inside VS Code. Try an expression, inspect an object, check a helper function, or experiment with an async operation in a dedicated bottom panel. Run directly from your current selection, including unsaved edits, without creating a separate script or adding temporary logging throughout your project.
+Js runner — Pardus gives you a JavaScript playground inside VS Code. Try an expression, inspect an object, check a helper function, or experiment with an async operation in a dedicated bottom panel. Run directly from your current selection, including unsaved edits, without creating a separate script or adding temporary logging throughout your project.
 
 With **Pardus** as its face, JS Runner is built around a focused workflow: select the code you care about and get readable feedback close to where you work.
 
@@ -39,7 +39,7 @@ With **Pardus** as its face, JS Runner is built around a focused workflow: selec
 
 ### Install
 
-In VS Code, open **Extensions** (`Ctrl+Shift+X` on Windows/Linux or `Cmd+Shift+X` on macOS), search for **JS Runner** by **Nihilnia**, and install it.
+In VS Code, open **Extensions** (`Ctrl+Shift+X` on Windows/Linux or `Cmd+Shift+X` on macOS), search for **Js runner — Pardus** by **Nihilnia**, and install it.
 
 If you have downloaded a `.vsix` package instead, open the Extensions view's **…** menu, choose **Install from VSIX…**, and select the package.
 
