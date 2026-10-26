@@ -1,178 +1,90 @@
-<div align="center">
-
-<img src="media/icon.png" alt="JS Runner Pardus Logo" width="100" height="100" />
+<p align="center">
+  <img src="media/icon.png" alt="Pardus, the face of JS Runner" width="144" height="144" />
+</p>
 
 # JS Runner
 
-**Run selected JavaScript instantly in a dedicated VS Code bottom panel**
+**Select JavaScript. Run it. See the result without leaving your editor.**
 
-*Zero-config scratchpad execution, smart AST dependency closure extraction, and live streaming output.*
+JS Runner gives you a JavaScript playground inside VS Code. Try an expression, inspect an object, check a helper function, or experiment with an async operation in a dedicated bottom panel. Run directly from your current selection, including unsaved edits, without creating a separate script or adding temporary logging throughout your project.
 
-<p>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-F7DF1E.svg?style=flat-square&logo=open-source-initiative&logoColor=black" alt="License: MIT" /></a>
-  <img src="https://img.shields.io/badge/VS%20Code-%5E1.90.0-007ACC.svg?style=flat-square&logo=visual-studio-code" alt="VS Code" />
-  <img src="https://img.shields.io/badge/Node.js-20.19%2B-339933.svg?style=flat-square&logo=node.js" alt="Node.js 20.19+" />
-  <img src="https://img.shields.io/badge/Version-0.5.1-6C7086.svg?style=flat-square" alt="Version 0.5.1" />
-  <img src="https://img.shields.io/badge/Execution-Isolated%20Process-89B4FA.svg?style=flat-square" alt="Isolated Process" />
-</p>
+With **Pardus** as its face, JS Runner is built around a focused workflow: select the code you care about and get readable feedback close to where you work.
 
----
-
-<p>
-  <a href="#-about-js-runner">About</a> •
-  <a href="#-key-features">Key Features</a> •
-  <a href="#-visual-tour--workflow">Visual Tour</a> •
-  <a href="#-installation--quickstart">Installation</a> •
-  <a href="#-how-to-use">How to Use</a> •
-  <a href="#%EF%B8%8F-configuration--settings">Settings</a> •
-  <a href="#-execution-model--architecture">Architecture</a> •
-  <a href="#-development--testing">Development</a> •
-  <a href="#-license">License</a>
-</p>
+[Quick start](#quick-start) · [Examples](#try-it-with-real-code) · [Settings](#settings) · [Troubleshooting](#troubleshooting) · [Support](https://github.com/projectGloria/jsRunner/issues)
 
 <p align="center">
-  <img src="media/preview.png" alt="JS Runner Interface Preview" width="860" />
+  <img src="media/preview.png" alt="Illustration of the JS Runner results panel with console output, execution status, and expression results" width="860" />
 </p>
 
-</div>
+*Panel illustration. The live panel follows your VS Code theme.*
 
----
+## Why JS Runner?
 
-## ⚡ About JS Runner
+- **Run just your selection.** Check a calculation or a small block without launching your entire application.
+- **Keep useful context.** Automatically load supported top-level declarations and imports referenced by your selection, including their dependencies.
+- **Work with unsaved edits.** The active document's current buffer supplies your selection and its local context.
+- **Use top-level `await`.** Experiment with promises and asynchronous functions without writing an async wrapper yourself.
+- **See logs as they arrive.** Console output and stderr stream into the panel, followed by the final result when available.
+- **Inspect more than strings.** Read nested objects, arrays, circular references, and errors with causes and custom properties.
+- **Start fresh every time.** Each run uses a separate Node.js process, with a configurable timeout and a Stop action.
+- **Stay in the editor.** Run by keyboard, right-click menu, or panel toolbar, and copy the output with one action.
 
-**JS Runner** turns your editor into an instant JavaScript playground. Instead of opening external terminals, switching between browser consoles, or creating throwaway scratch files, simply highlight any snippet of code and hit **`Ctrl+Alt+J`** (`Cmd+Alt+J` on macOS).
+## Quick start
 
-JS Runner evaluates your code in a dedicated bottom tab nestled alongside **Terminal**, **Output**, and **Ports**. It automatically inspects your file's AST, pulling in only the variables, functions, and module imports that your selection needs—without executing unrelated statements or side effects.
+### Requirements
 
-- 🎯 **Focused Scratchpad**: Run partial logic without running the entire script or project.
-- 🧠 **Smart Context Resolution**: Referenced declarations and imports are extracted automatically from the unsaved editor buffer.
-- 🚀 **Zero-Config Execution**: Evaluated in fresh Node.js processes with modern ES module semantics and top-level `await`.
-- 📺 **Non-Intrusive Panel**: Live output streams to an integrated Webview panel with colored statuses and deep object inspection.
+- VS Code **1.90.0 or newer**.
+- Node.js **20.19 or newer**, available on `PATH` or configured with `jsRunner.nodePath`.
+- A **trusted workspace**. Snippets execute with the permissions of your Node.js process.
 
----
+### Install
 
-## ✨ Key Features
+In VS Code, open **Extensions** (`Ctrl+Shift+X` on Windows/Linux or `Cmd+Shift+X` on macOS), search for **JS Runner** by **Nihilnia**, and install it.
 
-<table width="100%">
-  <tr>
-    <td width="50%">
-      <h3>⚡ Instant Selection Execution</h3>
-      <p>Highlight any JavaScript expression, function, or block and press <code>Ctrl+Alt+J</code> (<code>Cmd+Alt+J</code> on macOS). Runs immediately using unsaved buffer edits.</p>
-    </td>
-    <td width="50%">
-      <h3>🧠 Smart Dependency Closure</h3>
-      <p>Static AST analysis scans your file and local imports, resolving and executing <em>only</em> the declarations your selection depends on—ignoring unrelated code.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>📺 Dedicated Bottom Panel</h3>
-      <p>Results appear in a first-class VS Code panel tab alongside Terminal and Output. No intrusive notifications, modal popups, or cluttered consoles.</p>
-    </td>
-    <td width="50%">
-      <h3>🌊 Live Streaming &amp; Inspection</h3>
-      <p>Console output streams in real-time as chunks arrive, followed by formatted expression values with circular reference safety and deep nesting support.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>⏳ Native Top-Level Await</h3>
-      <p>Asynchronous code, timers, and promises are awaited natively. Inspect results from fetch requests and async pipelines seamlessly.</p>
-    </td>
-    <td width="50%">
-      <h3>🛡️ Clean Process Isolation</h3>
-      <p>Each run spawns a fresh, standalone Node.js process under strict mode. Variables never leak across runs, and runaway loops are safely terminated by timeout.</p>
-    </td>
-  </tr>
-</table>
+If you have downloaded a `.vsix` package instead, open the Extensions view's **…** menu, choose **Install from VSIX…**, and select the package.
 
----
+### Your first run
 
-## 📸 Visual Tour &amp; Workflow
+1. Open a JavaScript file or create an untitled editor.
+2. Paste and select the following code:
 
-### 1. Interactive Results Panel
-The dedicated **JS Runner** bottom panel streams `console.log()` output followed by the return value of your final expression.
+   ```javascript
+   const prices = [12, 25, 8];
+   prices.map(price => price * 2);
+   ```
 
-<p align="center">
-  <img src="media/preview.png" alt="JS Runner Panel Interface" width="820" />
-</p>
+3. Press **`Ctrl+Alt+J`** on Windows/Linux or **`Cmd+Alt+J`** on macOS. You can also right-click and choose **Run with JS Runner**.
+4. The **JS Runner** bottom panel opens with the result:
 
-- **Status Bar**: Green `Success`, red `Error` / `Timeout`, or grey `Cancelled`.
-- **Source Link**: Displays the origin file and line ranges (e.g. `demo.js:1–6`).
-- **Panel Actions**:
-  - **▶ Run**: Execute current editor selection (even while the panel is focused).
-  - **⏹ Stop**: Immediately terminate running processes.
-  - **📋 Copy Result**: One-click copy of the raw output to clipboard.
+   ```text
+   Result:
+   [ 24, 50, 16 ]
+   ```
 
-### 2. Execution Pipeline
+The last expression supplies the result. A trailing variable declaration displays its declared bindings; a trailing function or class declaration displays the declared value. Console output appears even when the code has no final value.
 
-When you trigger a run, JS Runner extracts only the required dependencies before handing execution to Node.js:
+## Try it with real code
 
-<p align="center">
-  <img src="media/workflow.png" alt="JS Runner Architecture Workflow" width="840" />
-</p>
+### Check a function without selecting its setup
 
----
-
-## 🚀 Installation &amp; Quickstart
-
-### Prerequisites
-
-- **VS Code**: `v1.90.0` or newer
-- **Node.js**: `v20.19` or newer (must be in system `PATH` or configured via `jsRunner.nodePath`)
-
-### Install via VSIX
-
-1. In VS Code, open the **Extensions** view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
-2. Click the **`···`** menu in the top-right corner of the Extensions pane.
-3. Select **Install from VSIX…**.
-4. Choose `instant-selection-js-runner-0.5.1.vsix`.
-5. Reload VS Code if prompted.
-
-### Keyboard Shortcuts &amp; Commands
-
-| Action | Shortcut (Win / Linux) | Shortcut (macOS) | Command Palette (`Ctrl+Shift+P`) |
-| :--- | :--- | :--- | :--- |
-| **Run Selection** | `Ctrl+Alt+J` | `Cmd+Alt+J` | `JS Runner: Run with JS Runner` |
-| **Stop Execution** | — | — | `JS Runner: Stop Execution` |
-| **Show Panel** | — | — | `JS Runner: Show Panel` |
-| **Copy Result** | — | — | `JS Runner: Copy Result` |
-
-> [!TIP]
-> The shortcut and context menu action are enabled by default in **JavaScript**, **TypeScript**, **Markdown**, **HTML**, **Vue**, and **Svelte** files. The Command Palette command can be run from any file.
-
----
-
-## 💡 How to Use
-
-### 1. Inspect Objects &amp; Declarations
-
-Select an object declaration to inspect its shape:
+Put this in a JavaScript file, then select **only `total(100);`**:
 
 ```javascript
-const user = {
-  name: 'Nihil',
-  age: 32,
-  greet() { return `Hello ${this.name}`; }
-};
+const taxRate = 0.18;
+const discount = 5;
+
+function total(price) {
+  return price * (1 + taxRate) - discount;
+}
+
+total(100);
 ```
 
-Selecting the declaration displays the `user` object. To execute the method, include both the declaration and the call in your selection:
+JS Runner loads the referenced function and constants from the current buffer and displays `113`. You do not need to include their declarations in the selection.
 
-```javascript
-user.greet();
-```
+### Explore asynchronous code
 
-> **Panel Output:**
-> ```javascript
-> 'Hello Nihil'
-> ```
-
----
-
-### 2. Asynchronous Execution &amp; Promises
-
-Top-level `await` is supported natively:
+Select this whole block:
 
 ```javascript
 const values = await Promise.resolve([1, 2, 3]);
@@ -180,130 +92,140 @@ console.log('Loaded items:', values.length);
 values.map(value => value * 2);
 ```
 
-> **Panel Output:**
-> ```
-> Loaded items: 3
-> [ 2, 4, 6 ]
-> ```
+Output:
 
----
+```text
+Loaded items: 3
 
-### 3. Smart Dependency Closure Extraction
+Result:
+[ 2, 4, 6 ]
+```
 
-You don't need to select imports or declarations that live elsewhere in the file:
+### Inspect a data transformation
+
+Select this whole block to see the resulting objects:
 
 ```javascript
-import { formatCurrency, fetchUser } from './billing.js';
+const users = [
+  { name: 'Ada', active: true },
+  { name: 'Linus', active: false },
+  { name: 'Grace', active: true }
+];
 
-const taxRate = 0.18;
-const discount = 5;
+users
+  .filter(user => user.active)
+  .map(user => ({ ...user, label: user.name.toUpperCase() }));
+```
 
-function calculateTotal(price) {
-  return formatCurrency(price * (1 + taxRate) - discount);
+### Use a local JavaScript module
+
+Given a saved `format.js` file next to your current file:
+
+```javascript
+// format.js
+export function label(name) {
+  return `Hello, ${name}!`;
 }
-
-// 👉 Simply highlight this line and press Ctrl+Alt+J:
-calculateTotal(100);
 ```
 
-**What happens:**
-1. JS Runner identifies that `calculateTotal` relies on `taxRate`, `discount`, and `formatCurrency`.
-2. It pulls in those declarations and the imported `formatCurrency` specifier automatically.
-3. Unrelated declarations (like `fetchUser`) and top-level side effects are omitted.
+Write the following in your current JavaScript file and select **only `label('Pardus');`**:
 
----
+```javascript
+import { label } from './format.js';
 
-## ⚙️ Configuration &amp; Settings
-
-Customize JS Runner by opening **Settings** (`Ctrl+,` / `Cmd+,`) and searching for `JS Runner`:
-
-| Setting | Type | Default | Description |
-| :--- | :---: | :---: | :--- |
-| `jsRunner.nodePath` | `string` | `"node"` | Path to the Node.js executable (must be Node 20.19 or newer). Allows pointing to NVM, Volta, or custom local binaries. |
-| `jsRunner.timeoutMs` | `number` | `5000` | Maximum execution time in milliseconds (allowed range: `100` to `300000`). Cancels runaway scripts. |
-| `jsRunner.inspectionDepth` | `number` | `5` | Maximum nested object traversal depth shown in the results panel (allowed range: `0` to `20`). |
-
-> [!NOTE]
-> Output is capped at 100 KB per execution to preserve editor responsiveness. Extremely large arrays and strings are abbreviated during inspection.
-
----
-
-## 🔬 Execution Model &amp; Architecture
-
-### 🛡️ Process Isolation &amp; Strict Mode
-- **Isolated Node Instance**: Every run spawns a fresh Node.js process. Global state and variable mutations do not persist across runs.
-- **Strict ES Module Semantics**: Code is evaluated in strict mode. Assigning to undeclared variables throws, and top-level `this` evaluates to `undefined`.
-- **Clean Log Output**: Node's `MODULE_TYPELESS_PACKAGE_JSON` warning and experimental `import()` notices are suppressed automatically. Your project's `package.json` is never altered.
-
-### 🧩 Automatic Context Loading
-- **Selective AST Traversal**: Uses Acorn to analyze identifiers and references. Only declarations directly or transitively referenced by the selected snippet are loaded.
-- **Deduplication**: Each file in the dependency closure is evaluated at most once per run. Shared module singletons and diamond imports retain reference equality (`a.ref === b.ref`).
-- **Pure Initializers Only**: Initializers are loaded when provably side-effect free: literals, arrays, object spreads, primitive math expressions (`24 * 60 * 60`, `Math.PI * 2`), `Object.freeze`, `Symbol`, `new Map()`, and `new Set()`. Top-level mutations are ignored so values reflect initial declarations.
-- **Opt-in Full Execution**: If you explicitly highlight an `import` statement or use `require()` / dynamic `import()` in your selection, standard Node module resolution is used.
-
-### 🔍 Error Traces &amp; Diagnostics
-- **Source Line Mapping**: Stack traces reflect original editor lines and accurate file paths.
-- **Rich Error Inspection**: Automatically surfaces `error.cause`, `AggregateError` member lists, and custom attached error properties while filtering out internal runner frames.
-
-### ⚠️ Syntactic Boundaries &amp; Limitations
-- **Selection Constraints**: Selected snippets must not contain `export` statements, raw TypeScript types, JSX, or browser globals (`window`, `document`).
-- **Complex Top-Level Syntaxes**: Top-level function calls, getters, classes, destructuring declarations, and circular imports outside the selection are not automatically extracted. JS Runner will explain what couldn't be resolved rather than running unsafe fallback code.
-- **Workspace Trust**: Requires a trusted workspace. Because Node runs with standard OS permissions, virtual workspaces and untrusted environments are disabled for safety.
-
----
-
-## 🛠️ Development &amp; Testing
-
-### Prerequisites
-
-Ensure you have installed:
-- **Node.js**: v20+
-- **npm**: v10+
-
-### Build Steps
-
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/projectGloria/jsRunner.git
-   cd jsRunner
-   ```
-
-2. **Install dependencies:**
-   ```powershell
-   npm install
-   ```
-
-3. **Type check &amp; Build:**
-   ```powershell
-   npm run check
-   npm run build
-   ```
-
-4. **Run Unit Tests:**
-   ```powershell
-   npm test
-   ```
-
-5. **Run Integration Tests:**
-   ```powershell
-   npm run test:integration
-   ```
-
-6. **Package VSIX:**
-   ```powershell
-   npm run package
-   ```
-
-### Debugging with Extension Host
-
-Press **`F5`** in VS Code to launch the Extension Development Host window with the debugger attached.
-
----
-
-## 📜 License
-
-Distributed under the **[MIT License](LICENSE)**.
-
+label('Pardus');
 ```
-MIT License © Nihilnia / projectGloria
+
+JS Runner loads the supported declarations needed by `label` and displays `'Hello, Pardus!'`. Local imported files are read from disk; unsaved changes in other editors are not included.
+
+## Commands and panel controls
+
+| Action | How to use it |
+| --- | --- |
+| Run a selection | `Ctrl+Alt+J` / `Cmd+Alt+J`, right-click **Run with JS Runner**, or use the panel's Play action. |
+| Stop execution | **JS Runner: Stop Execution** in the Command Palette, or the panel's Stop action while a run is active. |
+| Reopen results | **JS Runner: Show Panel** in the Command Palette. |
+| Copy output | **JS Runner: Copy Result** in the Command Palette, or the panel's Copy action. |
+
+The run command appears as **Run with JS Runner** in the Command Palette. The panel displays the source filename, selected line range, and execution status. You can rerun the current selection from the panel toolbar; starting a new run cancels the previous one.
+
+The default shortcut and editor menu are available in JavaScript, JavaScript React, TypeScript, TypeScript React, Markdown, HTML, Vue, and Svelte editors. **The selection itself must be executable JavaScript.** JS Runner does not transpile TypeScript, JSX, templates, or framework components. The Command Palette run action is available regardless of editor language.
+
+## How automatic context loading works
+
+JS Runner analyzes references in your selection and resolves supported declarations at the document's top level. It follows their dependencies, including supported local JavaScript imports and Node.js built-ins. Unrelated top-level statements are skipped during automatic context loading.
+
+<p align="center">
+  <img src="media/workflow.png" alt="Diagram of selection, dependency analysis, Node.js execution, and output in the JS Runner panel" width="840" />
+</p>
+
+There are two execution paths to keep in mind:
+
+- **Automatic context:** Referencing a binding outside the selection loads supported declarations and relevant mutation statements, subject to the loader's static checks. Supported array updates and property assignments can be included; unrelated logging is skipped. Shared dependencies are evaluated once per run.
+- **Explicit execution:** Code you select runs as written. Selecting an import statement, or calling `require()` or dynamic `import()` in the selection, uses normal Node.js module execution and can run module initialization code.
+
+Automatic context loading is deliberately limited. Classes, destructuring declarations, getters, arbitrary initializer calls, and circular automatic imports may require you to include the relevant setup in your selection. Automatic local imports support `.js` and `.mjs` files; package imports that require full initialization should be included explicitly in the selection.
+
+If the surrounding document cannot be parsed as JavaScript, JS Runner can still run a valid JavaScript selection on its own. A notice explains when external declarations were not loaded. This is useful for snippets inside Markdown, HTML, or a partially edited file.
+
+## Settings
+
+Open VS Code Settings and search for **JS Runner**, or add these values to `settings.json`:
+
+```json
+{
+  "jsRunner.nodePath": "node",
+  "jsRunner.timeoutMs": 5000,
+  "jsRunner.inspectionDepth": 5
+}
 ```
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `jsRunner.nodePath` | `"node"` | Node.js executable name or absolute path. Requires Node.js 20.19 or newer, independently of the Node.js bundled with VS Code. |
+| `jsRunner.timeoutMs` | `5000` | Execution deadline in milliseconds, from `100` to `300000`. Increase it for longer asynchronous work. |
+| `jsRunner.inspectionDepth` | `5` | Nested object inspection depth, from `0` to `20`. Higher values show more detail. |
+
+Streamed program output is limited to 100 KB per run, with a truncation notice when reached. Final results and errors are separately bounded. Large arrays and strings are abbreviated during inspection, and getters and custom inspection functions are not invoked to format results.
+
+## Runtime and privacy
+
+Every run starts in a fresh Node.js process. Variables and module state from an earlier run are not retained. Code runs in a strict async wrapper with top-level `await`, Node.js globals, and CommonJS helpers such as `require`, `__filename`, and `__dirname`. A file-backed run uses the source file's directory as its working directory.
+
+JS Runner executes through your configured Node.js executable and has no telemetry or account requirement. The extension does not send snippets to a hosted execution service. **Your selected code and any modules it executes can access files, the network, and other resources with your user's permissions.** A separate process and timeout do not provide a security sandbox.
+
+Browser globals such as `window` and `document` are unavailable. Function-local variables from a paused or running application are not captured. Export statements cannot be executed directly as a selection, although imported modules may contain exports. Virtual and untrusted workspaces are not supported.
+
+## Troubleshooting
+
+| What you see | What to check |
+| --- | --- |
+| Node.js cannot be started | Run `node --version` in your terminal. Install Node.js 20.19 or newer, or point `jsRunner.nodePath` to its executable. Restart VS Code after changing your system `PATH`. |
+| Invalid JavaScript | Select complete JavaScript statements or expressions. Exclude Markdown fences, HTML tags, TypeScript annotations, JSX, and `export` statements. |
+| A declaration cannot be loaded automatically | Include its declaration and required initialization in the selection. For package initialization, explicitly select the import too. |
+| A value differs from the running application | Each run starts fresh. Automatic context reconstructs supported declarations and updates; it does not capture a live application's state. |
+| Execution timed out | Check for an infinite loop or unresolved promise. Increase `jsRunner.timeoutMs` if the work legitimately needs more time. |
+| Result received, but the process stopped at the deadline | The snippet produced a result while timers or other handles remained active. Clear intervals or close resources when finished. |
+| The shortcut does nothing | Check Workspace Trust and keyboard shortcut conflicts. Try **Run with JS Runner** from the Command Palette with code selected. |
+
+## Feedback and support
+
+Found a bug or have an idea? [Open an issue](https://github.com/projectGloria/jsRunner/issues) with a small reproducible snippet, your VS Code and Node.js versions, and the output you expected. See [support guidance](SUPPORT.md) for details and [release notes](CHANGELOG.md) for the current release.
+
+## Development
+
+Use Node.js 20.19 or newer. Clone the repository, then run:
+
+```sh
+npm ci
+npm run check
+npm test
+npm run test:integration
+npm run package
+```
+
+`npm test` builds the extension and runs the Node.js tests. Integration tests use a local VS Code installation when available, or download a test copy. Press **F5** in VS Code to launch the Extension Development Host. Packaging runs type checking and builds the runtime before creating a `.vsix` file.
+
+## License
+
+[MIT](LICENSE) · Nihilnia / projectGloria

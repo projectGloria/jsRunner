@@ -1,14 +1,14 @@
 {
   "name": "instant-selection-js-runner",
   "displayName": "JS Runner",
-  "description": "Run selected JavaScript instantly in a dedicated JS Runner panel.",
+  "description": "Run JavaScript selections in VS Code with automatic context loading, top-level await, live console output, and readable results in a dedicated panel.",
   "version": "0.5.1",
   "publisher": "Nihilnia",
   "author": "Nihilnia",
   "license": "MIT",
   "icon": "media/icon.png",
   "galleryBanner": {
-    "color": "#1e1e2e",
+    "color": "#082c36",
     "theme": "dark"
   },
   "repository": {
@@ -28,10 +28,15 @@
   ],
   "keywords": [
     "javascript",
+    "javascript playground",
+    "code runner",
     "runner",
     "eval",
     "scratchpad",
-    "node",
+    "nodejs",
+    "repl",
+    "snippets",
+    "top-level await",
     "selection",
     "ast",
     "run"
@@ -135,14 +140,14 @@
           "default": 5000,
           "minimum": 100,
           "maximum": 300000,
-          "description": "Maximum execution time in milliseconds."
+          "description": "Maximum time for each Node.js run, in milliseconds. Increase this for longer asynchronous tasks. Default: 5 seconds; allowed range: 100 ms to 5 minutes."
         },
         "jsRunner.inspectionDepth": {
           "type": "number",
           "default": 5,
           "minimum": 0,
           "maximum": 20,
-          "description": "Maximum nested object depth shown in results."
+          "description": "How many levels of nested objects to display in results. Increase this to inspect deeper structures, or lower it for more compact output."
         }
       }
     }
