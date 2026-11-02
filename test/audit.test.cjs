@@ -120,10 +120,13 @@ test('export * barrels, extensionless specifiers, and index files resolve', () =
 
 test('default exports: expressions, anonymous functions, and identifiers', () => withWorkspace({
   'expr.js': 'const base = 2;\nexport default [base, base * 1];\n',
+  'object.js': 'const base = {};\nexport default [base * 1];\n',
   'fn.js': 'export default function () { return "anon"; }\n',
 }, async ({ select }) => {
-  // `base * 1` is a coercion of a non-primitive identifier, so it must fail closed.
-  assert.match((await select('import e from "./expr.js";\ne', 'e')).output, /operator coercing/);
+  // A const initialized to a primitive stays one, so coercing it runs no user code.
+  assert.match((await select('import e from "./expr.js";\ne', 'e')).output, /\[ 2, 2 \]/);
+  // Coercing an object could call its valueOf, so it must fail closed.
+  assert.match((await select('import o from "./object.js";\no', 'o')).output, /operator coercing/);
   assert.match((await select('import f from "./fn.js";\nf()', 'f()')).output, /'anon'/);
 }));
 
@@ -158,11 +161,11 @@ test('built-in imports in the document are available to the selection', () => wi
 
 test('a syntax error elsewhere in the file does not block a valid selection', () => withWorkspace({}, async ({ select }) => {
   const doc = 'const ok = 1 + 1;\nok * 3\nfunction broken( {';
-  const transformed = transformSelection(doc, 0, doc.indexOf('\nfunction'), 'main.js');
-  assert.equal(transformed.notice, undefined, 'self-contained selections need no notice');
-  assert.match((await select(doc, 'const ok = 1 + 1;\nok * 3')).output, /Result:\n6/);
-  const dependent = transformSelection(doc, doc.indexOf('ok * 3'), doc.indexOf('ok * 3') + 6, 'main.js');
-  assert.match(dependent.notice, /main\.js isn't valid JavaScript as a whole/);
+  const whole = await select(doc, 'const ok = 1 + 1;\nok * 3');
+  assert.equal(whole.output, '\nResult:\n6\n', 'self-contained selections need no note');
+  const dependent = await select(doc, 'ok * 3');
+  assert.match(dependent.output, /^Note: This file isn't valid JavaScript as a whole \(Unexpected token at line 3, column 19\)/);
+  assert.match(dependent.output, /ok is not defined/);
 }));
 
 test('stack traces point at editor lines, in the document and in loaded files', () => withWorkspace({
@@ -188,7 +191,8 @@ test('error causes and aggregate errors are shown', () => withWorkspace({}, asyn
   // Only the user's own line remains: no wrapper line, Node built-in, or runner frames.
   const frames = cause.output.split('\n').filter(line => /^\s+at /.test(line));
   assert.ok(frames.length > 0, cause.output);
-  for (const frame of frames) assert.match(frame, /main\.js:1:\d+$/, cause.output);
+  // inspect() may end the last frame with ` {`, opening the [cause] block.
+  for (const frame of frames) assert.match(frame, /main\.js:1:\d+( \{)?$/, cause.output);
   const aggregate = await run('throw new AggregateError([new Error("first"), new Error("second")], "many")');
   assert.match(aggregate.output, /many[\s\S]*first[\s\S]*second/);
 }));
@@ -207,7 +211,8 @@ test('leftover timers after a result keep the success status', () => withWorkspa
 
 test('status notes survive a full output cap, and cuts never split UTF-8', () => withWorkspace({}, async ({ folder }) => {
   // 3-byte characters after two ASCII bytes: (102400 - 2) % 3 === 2, so the cut lands mid-character.
-  const pending = execute({ ...base, cwd: folder, filename: path.join(folder, 'main.js'), ...transform('process.stdout.write("xx" + "€".repeat(60000)); setInterval(() => {}, 1000)') });
+  // Never settles, so the cancel lands before any result.
+  const pending = execute({ ...base, cwd: folder, filename: path.join(folder, 'main.js'), ...transform('process.stdout.write("xx" + "€".repeat(60000)); await new Promise(() => {})') });
   setTimeout(() => pending.cancel(), 500);
   const result = await pending.result;
   assert.equal(result.status, 'cancelled');

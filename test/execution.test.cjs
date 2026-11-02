@@ -67,9 +67,15 @@ test('fresh state, runtime errors, and syntax diagnostics', async () => {
 test('timeout and cancellation terminate runaway code', async () => {
   assert.equal((await run('while (true) {}', { timeoutMs: 200 })).status, 'timeout');
   assert.equal((await run('await new Promise(() => {})', { timeoutMs: 200 })).status, 'timeout');
-  const pending = execute({ ...options, ...transform('setInterval(() => {}, 1000)') });
-  setTimeout(() => pending.cancel(), 100);
+  const pending = execute({ ...options, ...transform('setInterval(() => {}, 1000); await new Promise(() => {})') });
+  setTimeout(() => pending.cancel(), 300);
   assert.equal((await pending.result).status, 'cancelled');
+  // Stopping leftover timers after the result keeps the snippet's own status, like the deadline does.
+  const after = execute({ ...options, ...transform('setInterval(() => {}, 1000); 7') });
+  setTimeout(() => after.cancel(), 300);
+  const stopped = await after.result;
+  assert.equal(stopped.status, 'success', stopped.output);
+  assert.match(stopped.output, /Result:\n7\n[\s\S]*Result received\. Stopped afterwards/);
 });
 test('output is bounded, and missing Node is actionable', async () => {
   const large = await run('console.log("x".repeat(200000)); 1');
@@ -90,7 +96,10 @@ test('automatic imports load only needed declarations and skip unrelated side ef
     const location = { ...options, cwd: folder, filename: path.join(folder, 'methods.js') };
     const result = await runSelection(document, document.indexOf('const evenNumbers'), document.length, location);
     assert.equal(result.status, 'success', result.output);
-    assert.equal(result.output, '[ 2, 4, 6 ] 4 6 undefined\n');
+    // `hobbies.push` targets an import, so it isn't replayed (that would run code against
+    // another module's value) and the skip is reported instead. No unselected code ran.
+    assert.match(result.output, /^Note: automatic context skipped[^\n]*\n {2}methods\.js:5 {2}hobbies\.push\("DO NOT RUN"\); {2}\(may change hobbies\)\n\n/);
+    assert.match(result.output, /\n\[ 2, 4, 6 \] 3 6 undefined\n$/);
     // Selecting an import itself does not duplicate the inherited binding.
     const whole = 'import hobbies, { numberz } from "./util.js";\nnumberz.length + hobbies.length';
     const included = await runSelection(whole, 0, whole.length, location);

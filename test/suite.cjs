@@ -3,6 +3,16 @@ const vscode = require('vscode');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+
+/** Focus changes settle asynchronously after the command returns. */
+async function waitFor(condition, what, timeoutMs = 3000) {
+  const deadline = Date.now() + timeoutMs;
+  while (!condition()) {
+    if (Date.now() > deadline) throw new Error(`Timed out waiting: ${what}`);
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+}
+
 exports.run = async () => {
   const extension = vscode.extensions.getExtension('Nihilnia.instant-selection-js-runner');
   assert.ok(extension);
@@ -47,6 +57,20 @@ exports.run = async () => {
     await vscode.commands.executeCommand('jsRunner.runSelection');
     await vscode.commands.executeCommand('jsRunner.copyResult');
     assert.match(await vscode.env.clipboard.readText(), /^Result:\n6\n$/m);
+    // A run from the editor hands keyboard focus back, so the keybinding works again at once.
+    await waitFor(() => vscode.window.activeTextEditor?.document === source, 'focus returns to the source editor');
+    // Live bindings: a same-file function updates the binding the selection reads.
+    await sourceEditor.edit(edit => edit.insert(source.lineAt(source.lineCount - 1).range.end, '\nlet count = 0;\nfunction inc() { count++; }\ninc(); count'));
+    const counter = source.lineCount - 1;
+    sourceEditor.selection = new vscode.Selection(counter, 0, counter, source.lineAt(counter).text.length);
+    await vscode.commands.executeCommand('jsRunner.runSelection');
+    await vscode.commands.executeCommand('jsRunner.copyResult');
+    assert.equal(await vscode.env.clipboard.readText(), '\nResult:\n1\n');
+    // Multi-cursor: only the primary selection runs, and the panel says so.
+    sourceEditor.selections = [new vscode.Selection(counter, 0, counter, source.lineAt(counter).text.length), new vscode.Selection(0, 0, 0, 2)];
+    await vscode.commands.executeCommand('jsRunner.runSelection');
+    await vscode.commands.executeCommand('jsRunner.copyResult');
+    assert.match(await vscode.env.clipboard.readText(), /^Note: only the primary selection ran \(2 selections\)\.\n\n\nResult:\n1\n$/);
   } finally { fs.rmSync(folder, { recursive: true }); }
-  console.log('Extension host integration: dedicated panel, selected code, Play command with panel focused, copy, empty selection, and same-file declarations passed.');
+  console.log('Extension host integration: dedicated panel, selected code, Play command with panel focused, copy, empty selection, same-file declarations, focus return, live bindings, and multi-cursor passed.');
 };

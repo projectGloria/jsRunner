@@ -133,6 +133,7 @@
         "jsRunner.nodePath": {
           "type": "string",
           "default": "node",
+          "scope": "machine-overridable",
           "description": "Node.js executable name or absolute path used to run selections (Node.js 20.19 or newer). This is independent of the Node.js version inside VS Code."
         },
         "jsRunner.timeoutMs": {
@@ -140,14 +141,14 @@
           "default": 5000,
           "minimum": 100,
           "maximum": 300000,
-          "description": "Maximum time for each Node.js run, in milliseconds. Increase this for longer asynchronous tasks. Default: 5 seconds; allowed range: 100 ms to 5 minutes."
+          "description": "Maximum time for each run, in milliseconds, counted once Node.js has started. Increase this for longer asynchronous tasks. Default: 5 seconds; allowed range: 100 ms to 5 minutes. Values outside the range are clamped."
         },
         "jsRunner.inspectionDepth": {
           "type": "number",
           "default": 5,
           "minimum": 0,
           "maximum": 20,
-          "description": "How many levels of nested objects to display in results. Increase this to inspect deeper structures, or lower it for more compact output."
+          "description": "How many levels of nested objects to display in results. Increase this to inspect deeper structures, or lower it for more compact output. Values outside the range are clamped."
         }
       }
     }
@@ -155,7 +156,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "tsc --noEmit",
-    "test": "npm run build && node --test test/*.test.cjs",
+    "test": "npm run check && npm run build && node --test test/*.test.cjs",
     "test:integration": "node test/integration.cjs",
     "vscode:prepublish": "npm run check && npm run build",
     "package": "vsce package --no-dependencies"
@@ -163,7 +164,7 @@
   "devDependencies": {
     "@types/eslint-scope": "^8.4.0",
     "@types/node": "^22.0.0",
-    "@types/vscode": "^1.90.0",
+    "@types/vscode": "~1.90.0",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
     "acorn": "^8.15.0",

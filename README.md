@@ -153,7 +153,7 @@ The default shortcut and editor menu are available in JavaScript, JavaScript Rea
 
 ## How automatic context loading works
 
-JS Runner analyzes references in your selection and resolves supported declarations at the document's top level. It follows their dependencies, including supported local JavaScript imports and Node.js built-ins. Unrelated top-level statements are skipped during automatic context loading.
+JS Runner analyzes references in your selection and resolves supported declarations at the document's top level. It follows their dependencies, including supported local JavaScript imports and Node.js built-ins. **Code you didn't select never runs**: other top-level statements are skipped, and when a skipped statement could change a value your selection uses, the output says so.
 
 <p align="center">
   <img src="media/workflow.png" alt="Diagram of selection, dependency analysis, Node.js execution, and output in the JS Runner panel" width="840" />
@@ -161,12 +161,21 @@ JS Runner analyzes references in your selection and resolves supported declarati
 
 There are two execution paths to keep in mind:
 
-- **Automatic context:** Referencing a binding outside the selection loads supported declarations and relevant mutation statements, subject to the loader's static checks. Supported array updates and property assignments can be included; unrelated logging is skipped. Shared dependencies are evaluated once per run.
+- **Automatic context:** Referencing a binding outside the selection loads its declaration, subject to static checks that guarantee loading runs none of your code. Shared dependencies are evaluated once per run.
 - **Explicit execution:** Code you select runs as written. Selecting an import statement, or calling `require()` or dynamic `import()` in the selection, uses normal Node.js module execution and can run module initialization code.
 
-Automatic context loading is deliberately limited. Classes, destructuring declarations, getters, arbitrary initializer calls, and circular automatic imports may require you to include the relevant setup in your selection. Automatic local imports support `.js` and `.mjs` files; package imports that require full initialization should be included explicitly in the selection.
+Loaded values behave like the module itself: the selection shares live bindings with the file's functions and with imported modules (`inc(); count` shows the updated count), assigning a `const` or an import throws `TypeError`, and functions keep their `this`.
 
-If the surrounding document cannot be parsed as JavaScript, JS Runner can still run a valid JavaScript selection on its own. A notice explains when external declarations were not loaded. This is useful for snippets inside Markdown, HTML, or a partially edited file.
+A value is reconstructed as it stands just before the selection. Updates that provably run no user code are replayed in order: `push`, `unshift`, `pop`, `shift`, and `reverse` on a `const` array, `set`, `add`, `delete`, and `clear` on a `const` `Map` or `Set`, `obj.key = value` on a `const` object literal, and `let` counters such as `n++` or `total += 2`. Statements below the selection, and the selected statements themselves, aren't replayed. Any other statement that could change a loaded value (a loop, a function call, a method with a callback) is skipped and listed in a note at the top of the output, with its file and line:
+
+```text
+Note: automatic context skipped these top-level statements, which may change values the selection uses. Select them too if they matter:
+  main.js:2  for (let i = 0; i < 3; i++) xs.push(i);  (may change xs)
+```
+
+Automatic context loading is deliberately limited. Classes, destructuring declarations, getters, arbitrary initializer calls, and circular automatic imports may require you to include the relevant setup in your selection. Automatic local imports support `.js` and `.mjs` files; package imports that require full initialization should be included explicitly in the selection. Changes that one imported module makes to another module's exports aren't tracked.
+
+If the surrounding document cannot be parsed as JavaScript, JS Runner can still run a valid JavaScript selection on its own. A note explains when external declarations were not loaded. This is useful for snippets inside Markdown, HTML, or a partially edited file.
 
 ## Settings
 
@@ -183,14 +192,16 @@ Open VS Code Settings and search for **JS Runner**, or add these values to `sett
 | Setting | Default | Purpose |
 | --- | --- | --- |
 | `jsRunner.nodePath` | `"node"` | Node.js executable name or absolute path. Requires Node.js 20.19 or newer, independently of the Node.js bundled with VS Code. |
-| `jsRunner.timeoutMs` | `5000` | Execution deadline in milliseconds, from `100` to `300000`. Increase it for longer asynchronous work. |
-| `jsRunner.inspectionDepth` | `5` | Nested object inspection depth, from `0` to `20`. Higher values show more detail. |
+| `jsRunner.timeoutMs` | `5000` | Execution deadline in milliseconds, from `100` to `300000`, counted once Node.js has started. Increase it for longer asynchronous work. Out-of-range values are clamped. |
+| `jsRunner.inspectionDepth` | `5` | Nested object inspection depth, from `0` to `20`. Higher values show more detail. Out-of-range values are clamped. |
 
-Streamed program output is limited to 100 KB per run, with a truncation notice when reached. Final results and errors are separately bounded. Large arrays and strings are abbreviated during inspection, and getters and custom inspection functions are not invoked to format results.
+`jsRunner.nodePath` can't be set by a workspace's own settings unless you allow it, so a repository can't choose which executable runs your selections.
+
+Streamed program output is limited to 100 KB per run, with a truncation notice when reached. Final results and errors are separately bounded. Large arrays and strings are abbreviated during inspection. Getters and custom inspection functions are not invoked to format results, with two exceptions inherent to Node.js's `util.inspect`: a `Symbol.toStringTag` getter is read, and a Proxy's traps can run.
 
 ## Runtime and privacy
 
-Every run starts in a fresh Node.js process. Variables and module state from an earlier run are not retained. Code runs in a strict async wrapper with top-level `await`, Node.js globals, and CommonJS helpers such as `require`, `__filename`, and `__dirname`. A file-backed run uses the source file's directory as its working directory.
+Every run starts in a fresh Node.js process. Variables and module state from an earlier run are not retained. Code runs in a strict async function with top-level `await`, Node.js globals, and CommonJS helpers such as `require`, `__filename`, and `__dirname` (`import.meta` is unavailable). A file-backed run uses the source file's directory as its working directory. A final expression that is a promise is awaited; any other value, including a hand-written thenable, is shown as is. Console output and stderr appear in the order they were written. Stopping a run, or reaching its deadline, also ends processes the snippet started.
 
 JS Runner executes through your configured Node.js executable and has no telemetry or account requirement. The extension does not send snippets to a hosted execution service. **Your selected code and any modules it executes can access files, the network, and other resources with your user's permissions.** A separate process and timeout do not provide a security sandbox.
 
@@ -204,6 +215,8 @@ Browser globals such as `window` and `document` are unavailable. Function-local 
 | Invalid JavaScript | Select complete JavaScript statements or expressions. Exclude Markdown fences, HTML tags, TypeScript annotations, JSX, and `export` statements. |
 | A declaration cannot be loaded automatically | Include its declaration and required initialization in the selection. For package initialization, explicitly select the import too. |
 | A value differs from the running application | Each run starts fresh. Automatic context reconstructs supported declarations and updates; it does not capture a live application's state. |
+| Note: automatic context skipped these top-level statements | The listed statements run before the selection in the file but weren't replayed, so the values they change may differ. Select them together with your code to run them. |
+| Only the primary selection ran | With multiple cursors, only the primary selection runs. |
 | Execution timed out | Check for an infinite loop or unresolved promise. Increase `jsRunner.timeoutMs` if the work legitimately needs more time. |
 | Result received, but the process stopped at the deadline | The snippet produced a result while timers or other handles remained active. Clear intervals or close resources when finished. |
 | The shortcut does nothing | Check Workspace Trust and keyboard shortcut conflicts. Try **Run with JS Runner** from the Command Palette with code selected. |
